@@ -179,6 +179,8 @@ class Canvas {
 window.onload = function () {
     const game = new LifeGame();
     const canvas = new Canvas(document.getElementById("canvas"));
+    const cellImg = new Image();
+    cellImg.src = "./img/block.png";
 
     game.setCell(2, 3);
     game.setCell(3, 3);
@@ -201,10 +203,20 @@ window.onload = function () {
         for (let j = 0; j < gameSize.y; j++) {
             let s = "";
             for (let i = 0; i < gameSize.x; i++) {
+                //ベースのセル画像を描画
+                canvas.ctx.globalCompositeOperation = "source-over";
+                canvas.ctx.drawImage(cellImg, i * cellSize.width, j * cellSize.height, cellSize.width, cellSize.height);
+
+                //セルの色を設定(背景)
+                canvas.ctx.globalCompositeOperation = "multiply";
+                canvas.ctx.fillStyle = `rgb(${(32 / gameSize.y) * j} ${(32 / gameSize.x) * i} 32)`;
+                //セルが生きている場合は明るく
                 if (game.getCell(i, j)) {
-                    canvas.ctx.fillStyle = "orange";
-                    canvas.ctx.fillRect(i * cellSize.width, j * cellSize.height, cellSize.width, cellSize.height);
+                    canvas.ctx.fillStyle = `rgb(${(255 / gameSize.y) * j} ${(255 / gameSize.x) * i} 255)`;
                 }
+
+                //セルの色の合成
+                canvas.ctx.fillRect(i * cellSize.width, j * cellSize.height, cellSize.width, cellSize.height);
                 s += ' ' + (game.getCell(i, j) ? game.getCell(i, j) : '.');
             }
             console.log(`${('00' + j).slice(-2)} |${s}`);
