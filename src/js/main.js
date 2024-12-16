@@ -2,7 +2,7 @@
 class LifeGame {
     constructor(option) {
         //フィールドのサイズ(番兵は含めない)
-        this._fieldSize = { x: 32, y: 18 };
+        this._fieldSize = { x: 64, y: 36 };
         //もし引数があれば設定
         if (option) {
             //フィールドサイズの設定
@@ -21,7 +21,7 @@ class LifeGame {
             this._cells.push(new Array());
             //番兵が必要なので+2
             for (let i = 0; i < this._fieldSize.x + 2; i++) {
-                this._cells[j].push(0);
+                this._cells[j].push(Math.random() < 0.5 ? 1 : 0);
             }
         }
     }
@@ -157,15 +157,17 @@ window.onload = function () {
     const game = new LifeGame();
     const canvas = new Canvas(document.getElementById("canvas"));
     const cellImg = new Image();
+    let gameSize = game.getSize();
     cellImg.src = "./img/block.png";
-    game.setCell(2, 3);
-    game.setCell(3, 3);
-    game.setCell(4, 3);
-    game.setCell(4, 4);
-    game.setCell(3, 5);
     setInterval(() => {
+        for (let j = 0; j < gameSize.y; j++) {
+            for (let i = 0; i < gameSize.x; i++) {
+                if (Math.floor(Math.random() * gameSize.y * gameSize.x) % (gameSize.y * gameSize.x) == 0) {
+                    game.setCell(i, j);
+                }
+            }
+        }
         //描画処理
-        let gameSize = game.getSize();
         let canvasSize = canvas.size;
         let cellSize = { width: canvasSize.width / gameSize.x, height: canvasSize.height / gameSize.y };
         //画面のリサイズと背景の塗りつぶし
@@ -181,10 +183,10 @@ window.onload = function () {
                 canvas.ctx.drawImage(cellImg, i * cellSize.width, j * cellSize.height, cellSize.width, cellSize.height);
                 //セルの色を設定(背景)
                 canvas.ctx.globalCompositeOperation = "multiply";
-                canvas.ctx.fillStyle = `rgb(${(32 / gameSize.y) * j} ${(32 / gameSize.x) * i} 32)`;
+                canvas.ctx.fillStyle = `rgb(${(32 / gameSize.y) * j} ${(32 / gameSize.x) * i} ${32 - ((32 / gameSize.y) * j + (32 / gameSize.x) * i) / 2})`;
                 //セルが生きている場合は明るく
                 if (game.getCell(i, j)) {
-                    canvas.ctx.fillStyle = `rgb(${(255 / gameSize.y) * j} ${(255 / gameSize.x) * i} 255)`;
+                    canvas.ctx.fillStyle = `rgb(${(255 / gameSize.y) * j / 2} ${(255 / gameSize.x) * i / 2} ${255 - ((255 / gameSize.y) * j + (255 / gameSize.x) * i) / 2})`;
                 }
                 //セルの色の合成
                 canvas.ctx.fillRect(i * cellSize.width, j * cellSize.height, cellSize.width, cellSize.height);
@@ -194,5 +196,5 @@ window.onload = function () {
         }
         //次世代へ
         game.next();
-    }, 1000 / 4);
+    }, 1000 / 1);
 };
